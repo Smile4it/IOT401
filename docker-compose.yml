@@ -36,7 +36,7 @@ services:
 #         SENSORS         #
 ###########################
 
-  sensors-presence_1:
+  sensors-presence-1:
     build: ./sensors/presence/
     environment: 
       PRESENCE_ID: presence_1  
@@ -46,7 +46,7 @@ services:
     volumes:
       - ./certs:/app/certs:ro
 
-  sensors-presence_2:
+  sensors-presence-2:
     build: ./sensors/presence/
     environment: 
       PRESENCE_ID: presence_2  
@@ -120,7 +120,7 @@ services:
 #      SENSORS INTRU      S#
 ###########################
 
-  sensors-intru_1:
+  sensors-intrus-1:
     build: ./sensors/intrus/
     environment:
       INTRUS_ID: INTRUS_1
@@ -130,7 +130,7 @@ services:
     volumes:
       - ./certs:/app/certs:ro
 
-  sensors-intru_2:
+  sensors-intrus_2:
     build: ./sensors/intrus/
     environment:
       INTRUS_ID: INTRUS_2
