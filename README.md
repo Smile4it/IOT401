@@ -4,8 +4,8 @@ Projet du module IOT401 (École 2600) : concevoir une solution IoT, prototyper s
 
 ## Equipe
 
-- <Prénom Nom> : <parties>
-- <Prénom Nom> : <parties>
+- <Smile4it> : <parties>
+- <bigcataxel> : <parties>
 
 ## Cas d'usage
 
