@@ -1,3 +1,7 @@
+networks:
+  reseau-public:
+  reseau-prive:
+
 services:
 
 ###########################
@@ -9,99 +13,106 @@ services:
     container_name: broker-public
     user: "0:0"
     restart: unless-stopped
-    port:
+    networks: [reseau-public]
+    ports:
       - "8887:8887"
     volumes:
-        - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
-        - ./mosquitto/acl:/mosquitto/config/acl
-        - ./certs:/mosquitto/certs:ro
+      - ./broker-public/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./broker-public/acl:/mosquitto/config/acl
+      - ./certs:/mosquitto/certs:ro
 
   broker-prive:
     image: eclipse-mosquitto:2.0.18
     container_name: broker-prive
     user: "0:0"
     restart: unless-stopped
-    port:
-      - "8888:8888"
+    networks: [reseau-prive]
     volumes:
-        - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
-        - ./mosquitto/acl:/mosquitto/config/acl
+        - ./broker-prive/mosquitto.conf:/mosquitto/config/mosquitto.conf
+        - ./broker-prive/acl:/mosquitto/config/acl
         - ./certs:/mosquitto/certs:ro
-
 
 ###########################
 #         SENSORS         #
 ###########################
 
   sensors-presence_1:
-    build: ./sensors/presence/presence.py
-    environnement: 
-      PRESENCE-ID: presence_1  
+    build: ./sensors/presence/
+    environment: 
+      PRESENCE_ID: presence_1  
     depends_on:
       - broker-public
+    networks: [reseau-public]
     volumes:
       - ./certs:/app/certs:ro
 
   sensors-presence_2:
-    build: ./sensors/presence/presence.py
-    environnement: 
-      PRESENCE-ID: presence_2  
+    build: ./sensors/presence/
+    environment: 
+      PRESENCE_ID: presence_2  
     depends_on:
       - broker-public
+    networks: [reseau-public]
     volumes:
       - ./certs:/app/certs:ro
 
   sensors-smoke:
-    build: ./sensors/smoke/smoke.py
-    environnement: 
-      SMOKE-ID: SMOKE  
+    build: ./sensors/smoke/
+    environment: 
+      SMOKE_ID: SMOKE  
     depends_on:
       - broker-prive
+    networks: [reseau-prive]
     volumes:
       - ./certs:/app/certs:ro
 
   sensors-temperature:
-    build: ./sensors/weather/temperature.py
-    environnement: 
-      TEMPERATURE-ID: TEMPERATURE  
+    build: ./sensors/weather/temperature/
+    environment: 
+      TEMPERATURE_ID: TEMPERATURE  
     depends_on:
       - broker-public
+    networks: [reseau-public]
     volumes:
       - ./certs:/app/certs:ro
 
   sensors-wind:
-    build: ./sensors/weather/wind.py
-    environnement: 
-      WIND-ID: WIND  
+    build: ./sensors/weather/wind/
+    environment: 
+      WIND_ID: WIND  
     depends_on:
       - broker-public
+    networks: [reseau-public]
     volumes:
       - ./certs:/app/certs:ro
 
   sensors-humidity:
-    build: ./sensors/weather/humidity.py
-    environnement: 
-      HUMIDITY-ID: HUMIDITY  
+    build: ./sensors/weather/humidity/
+    environment: 
+      HUMIDITY_ID: HUMIDITY  
     depends_on:
       - broker-public
+    networks: [reseau-public]
     volumes:
       - ./certs:/app/certs:ro
 
   radar-speed:
-    build: ./sensors/radar/speed.py
-    environnement: 
-      SPEED-ID: SPEED  
+    build: ./sensors/radars/speed/
+    environment: 
+      SPEED_ID: SPEED  
     depends_on:
       - broker-prive
+    networks: [reseau-prive]
     volumes:
       - ./certs:/app/certs:ro
 
   radar-traffic-light:
-    build: ./sensors/radar/traffic-light.py
-    environnement: 
-      TRAFFIC-LIGHT-ID: TRAFFIC-LIGHT  
+    build: ./sensors/radars/traffic-light/
+    environment: 
+      TRAFFIC_LIGHT_ID: TRAFFIC-LIGHT  
     depends_on:
       - broker-prive
+    networks: [reseau-prive]
     volumes:
       - ./certs:/app/certs:ro
 
@@ -110,20 +121,22 @@ services:
 ###########################
 
   sensors-intru_1:
-    build: ./sensors/intrus/intrus.py
+    build: ./sensors/intrus/
     environment:
-      PRESENCE-ID: INTRU_1
+      INTRU_ID: INTRU_1
     depends_on:
       - broker-public
+    networks: [reseau-public]
     volumes:
       - ./certs:/app/certs:ro
 
   sensors-intru_2:
-    build: ./sensors/intrus/intrus.py
+    build: ./sensors/intrus/
     environment:
-      PRESENCE-ID: INTRU_2
+      INTRU_ID: INTRU_2
     depends_on:
       - broker-public
+    networks: [reseau-public]
     volumes:
       - ./certs:/app/certs:ro
 
@@ -136,5 +149,6 @@ services:
     depends_on:
       - broker-public
       - broker-prive
+    networks: [reseau-public, reseau-prive]
     volumes:
       - ./certs:/app/certs:ro
