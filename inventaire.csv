@@ -1,0 +1,9 @@
+id;type;zone
+TEMPERATURE;temperature;public
+HUMIDITY;humidity;public
+WIND;wind;public
+presence_1;presence;public
+presence_2;presence;public
+SMOKE;smoke;prive
+TRAFFIC_LIGHT;traffic;prive
+SPEED;speed;prive

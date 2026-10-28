@@ -1,4 +1,4 @@
 basicConstraints = CA:FALSE
 keyUsage = digitalSignature, keyEncipherment
 extendedKeyUsage = serverAuth
-subjectAltName = DNS:broker, DNS:localhost, IP:127.0.0.1
+subjectAltName = DNS:broker-prive
