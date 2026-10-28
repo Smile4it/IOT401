@@ -109,7 +109,7 @@ services:
   radar-traffic-light:
     build: ./sensors/radars/traffic-light/
     environment: 
-      TRAFFIC_LIGHT_ID: TRAFFIC-LIGHT  
+      TRAFFIC_LIGHT_ID: TRAFFIC_LIGHT  
     depends_on:
       - broker-prive
     networks: [reseau-prive]
@@ -117,13 +117,13 @@ services:
       - ./certs:/app/certs:ro
 
 ###########################
-#      SENSOR INTRU       #
+#      SENSORS INTRU      S#
 ###########################
 
   sensors-intru_1:
     build: ./sensors/intrus/
     environment:
-      INTRU_ID: INTRU_1
+      INTRUS_ID: INTRUS_1
     depends_on:
       - broker-public
     networks: [reseau-public]
@@ -133,7 +133,7 @@ services:
   sensors-intru_2:
     build: ./sensors/intrus/
     environment:
-      INTRU_ID: INTRU_2
+      INTRUS_ID: INTRUS_2
     depends_on:
       - broker-public
     networks: [reseau-public]
