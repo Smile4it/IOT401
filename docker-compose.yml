@@ -1,0 +1,154 @@
+networks:
+  reseau-public:
+  reseau-prive:
+
+services:
+
+###########################
+#         BROKER          #
+###########################
+
+  broker-public:
+    image: eclipse-mosquitto:2.0.18
+    container_name: broker-public
+    user: "0:0"
+    restart: unless-stopped
+    networks: [reseau-public]
+    ports:
+      - "8887:8887"
+    volumes:
+      - ./broker-public/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./broker-public/acl:/mosquitto/config/acl
+      - ./certs:/mosquitto/certs:ro
+
+  broker-prive:
+    image: eclipse-mosquitto:2.0.18
+    container_name: broker-prive
+    user: "0:0"
+    restart: unless-stopped
+    networks: [reseau-prive]
+    volumes:
+        - ./broker-prive/mosquitto.conf:/mosquitto/config/mosquitto.conf
+        - ./broker-prive/acl:/mosquitto/config/acl
+        - ./certs:/mosquitto/certs:ro
+
+###########################
+#         SENSORS         #
+###########################
+
+  sensors-presence-1:
+    build: ./sensors/presence/
+    environment: 
+      PRESENCE_ID: presence_1  
+    depends_on:
+      - broker-public
+    networks: [reseau-public]
+    volumes:
+      - ./certs:/app/certs:ro
+
+  sensors-presence-2:
+    build: ./sensors/presence/
+    environment: 
+      PRESENCE_ID: presence_2  
+    depends_on:
+      - broker-public
+    networks: [reseau-public]
+    volumes:
+      - ./certs:/app/certs:ro
+
+  sensors-smoke:
+    build: ./sensors/smoke/
+    environment: 
+      SMOKE_ID: SMOKE  
+    depends_on:
+      - broker-prive
+    networks: [reseau-prive]
+    volumes:
+      - ./certs:/app/certs:ro
+
+  sensors-temperature:
+    build: ./sensors/weather/temperature/
+    environment: 
+      TEMPERATURE_ID: TEMPERATURE  
+    depends_on:
+      - broker-public
+    networks: [reseau-public]
+    volumes:
+      - ./certs:/app/certs:ro
+
+  sensors-wind:
+    build: ./sensors/weather/wind/
+    environment: 
+      WIND_ID: WIND  
+    depends_on:
+      - broker-public
+    networks: [reseau-public]
+    volumes:
+      - ./certs:/app/certs:ro
+
+  sensors-humidity:
+    build: ./sensors/weather/humidity/
+    environment: 
+      HUMIDITY_ID: HUMIDITY  
+    depends_on:
+      - broker-public
+    networks: [reseau-public]
+    volumes:
+      - ./certs:/app/certs:ro
+
+  radar-speed:
+    build: ./sensors/radars/speed/
+    environment: 
+      SPEED_ID: SPEED  
+    depends_on:
+      - broker-prive
+    networks: [reseau-prive]
+    volumes:
+      - ./certs:/app/certs:ro
+
+  radar-traffic-light:
+    build: ./sensors/radars/traffic-light/
+    environment: 
+      TRAFFIC_LIGHT_ID: TRAFFIC_LIGHT  
+    depends_on:
+      - broker-prive
+    networks: [reseau-prive]
+    volumes:
+      - ./certs:/app/certs:ro
+
+###########################
+#      SENSORS INTRU      S#
+###########################
+
+  sensors-intrus-1:
+    build: ./sensors/intrus/
+    environment:
+      INTRUS_ID: INTRUS_1
+    depends_on:
+      - broker-public
+    networks: [reseau-public]
+    volumes:
+      - ./certs:/app/certs:ro
+
+  sensors-intrus_2:
+    build: ./sensors/intrus/
+    environment:
+      INTRUS_ID: INTRUS_2
+    depends_on:
+      - broker-public
+    networks: [reseau-public]
+    volumes:
+      - ./certs:/app/certs:ro
+
+###########################
+#        SUPERVISOR       #
+###########################
+
+  supervisor:
+    build: ./supervisor/
+    depends_on:
+      - broker-public
+      - broker-prive
+    networks: [reseau-public, reseau-prive]
+    volumes:
+      - ./certs:/app/certs:ro
