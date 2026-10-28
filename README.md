@@ -1,4 +1,4 @@
-# Chaine-de-Supervision-IOT-sécurisée
+# IOT401
 
 Projet du module IOT401 (École 2600) : concevoir une solution IoT, prototyper son cœur sécurisé dès la construction, puis auditer sa propre infrastructure et justifier sa conformité.
 
