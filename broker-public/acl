@@ -1,0 +1,4 @@
+pattern write city/sensor/%u
+
+user supervisor
+topic read city/#
