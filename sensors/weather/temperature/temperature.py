@@ -18,6 +18,6 @@ c.connect("broker-public", 8887)
 c.loop_start()
 
 while True:
-    temperature = 22 + random.uniform(-3,6)
+    temperature = 22 + random.uniform(-3,10)
     c.publish(f"city/sensor/{SENSOR_ID}", str(round(temperature, 1)) + "°C", qos=1)
-    time.sleep(30)
+    time.sleep(10)

@@ -20,4 +20,4 @@ c.loop_start()
 while True:
     temperature = 22 + random.uniform(-30,20)
     c.publish(f"city/sensor/{SENSOR_ID}", str(round(temperature, 1)) + "°C", qos=1)
-    time.sleep(random.random())
+    time.sleep(randome.random())

@@ -18,6 +18,6 @@ c.connect("broker-public", 8887)
 c.loop_start()
 
 while True:
-    vent = 15 + random.uniform(-5, 50)
+    vent = 15 + random.uniform(-5, 75)
     c.publish(f"city/sensor/{SENSOR_ID}", str(round(vent, 1)) + " km/h", qos=1)
-    time.sleep(random.uniform(10, 30))
+    time.sleep(10)

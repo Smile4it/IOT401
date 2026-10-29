@@ -18,6 +18,6 @@ c.connect("broker-public", 8887)
 c.loop_start()
 
 while True:
-    humidite = 50 + random.uniform(-10, 15)
+    humidite = 50 + random.uniform(-10, 50)
     c.publish(f"city/sensor/{SENSOR_ID}", str(round(humidite, 1)) + "%", qos=1)
-    time.sleep(30)
+    time.sleep(10)

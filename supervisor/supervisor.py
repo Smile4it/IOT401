@@ -1,4 +1,5 @@
 import csv
+import re
 import os
 import ssl
 import time
@@ -53,24 +54,30 @@ def on_connect(client, zone, flags, reason_code, properties):
         log(f"[{zone}] connecté en mTLS, abonnement à {TOPIC}")
         client.subscribe(TOPIC)
 
+def extraire_valeur(type_objet, texte):
+    if type_objet in ("presence", "traffic"):
+        return texte                              # message texte, pas de nombre
+    m = re.search(r"-?\d+(?:\.\d+)?", texte)      # ignore les unités : °C, %, km/h
+    return float(m.group()) if m else None
+
 
 def on_message(client, zone, msg):
-    id_objet = msg.topic.split("/")[-1]          # l'identité est le dernier niveau du topic
-    try:
-        valeur = float(msg.payload.decode())
-    except ValueError:
-        log(f"[PAYLOAD INVALIDE] {msg.topic} : {msg.payload!r}")
-        return
+    id_objet = msg.topic.split("/")[-1]
+    texte = msg.payload.decode(errors="replace")
 
-    if id_objet not in ALLOWLIST:                # certificat valide mais objet jamais provisionné
-        log(f"[ALERTE INTRUSION] objet inconnu '{id_objet}' via broker {zone} | {msg.topic} | {valeur}")
+    if id_objet not in ALLOWLIST:                 # 1. l'identité d'abord
+        log(f"[ALERTE INTRUSION] objet inconnu '{id_objet}' via broker {zone} | {msg.topic} | {texte}")
         return
 
     objet = INVENTAIRE[id_objet]
-    if objet["zone"] != zone:                    # objet connu, mais vu sur le mauvais broker
+    if objet["zone"] != zone:                     # 2. la zone
         log(f"[ALERTE ZONE] '{id_objet}' devrait être en zone {objet['zone']}, vu via {zone}")
         return
 
+    valeur = extraire_valeur(objet["type"], texte)  # 3. le contenu seulement ensuite
+    if valeur is None:
+        log(f"[PAYLOAD INVALIDE] {msg.topic} : {texte!r}")
+        return
     appliquer_regle(objet["type"], id_objet, valeur)
 
 

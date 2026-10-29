@@ -25,4 +25,4 @@ while True:
         message="THE PARKING PLACE IS OCCUPED"
     
     c.publish(f"city/sensor/{SENSOR_ID}",message,qos=1)
-    time.sleep(random.uniform(10,30))
+    time.sleep(10)

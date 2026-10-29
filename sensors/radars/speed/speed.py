@@ -24,4 +24,4 @@ while True:
         car=55+ random.randint(2,30)
     if car > limite:
         c.publish(f"city/sensor/{SENSOR_ID}", "POLICE ALERTE: A CAR WAS SPEEDING AT "+str(car)+"km/h",qos=1)
-    time.sleep(random.uniform(30,60))
+    time.sleep(10)

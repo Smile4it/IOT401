@@ -22,4 +22,4 @@ while True:
     if random.random() < 1/50:
         smoke = True
         c.publish(f"city/sensor/{SENSOR_ID}","ALERTE FIREFIGHTER: SMOKE DETECTED", qos=1)
-    time.sleep(random.uniform(30, 60))
+    time.sleep(10)
