@@ -5,6 +5,8 @@ set -e #set -e permet au script de ce lancer et de s'arréter à la moindre erre
 cd "$(dirname "$0")" # permet de faire en sorte que la sortie du script aille automatiquement dans certs/ et non dans le dossier depuis lequel je lance gen-certs.sh
 umask 077 # quand un fichier est crée il part des droits 666 (tout le monde lit et écrit). umask retire les droits en fonction du numero donner.
 
+rm -f broker-public.key broker-prive.key
+
 INVENTAIRE="${1:-../inventaire.csv}"
 
 echo "=== 1. Génération du certificat auto-signé (CA) ==="
@@ -82,6 +84,9 @@ openssl req -new -nodes -newkey rsa:2048 \
 openssl x509 -req -in INTRUS_2.csr -CA ca.crt -CAkey ca.key -CAcreateserial \
  -out INTRUS_2.crt -days 90 -extfile client.ext
 rm INTRUS_2.csr
+
+sudo chown 1883:1883 broker-public.key broker-prive.key \
+  || echo "ATTENTION : exécute 'sudo chown 1883:1883 certs/broker-public.key certs/broker-prive.key'"
 
 chmod 644 *.crt # les certificats sont publics : le broker doit pouvoir les lire
 echo "=== Terminé : $(ls *.crt | wc -l) certificats ==="
