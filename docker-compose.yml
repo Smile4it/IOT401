@@ -1,36 +1,41 @@
 networks:
   reseau-public:
   reseau-prive:
+    internal: true   # aucune sortie vers l'extérieur
 
 services:
 
 ###########################
-#         BROKER          #
+#         BROKERS         #
 ###########################
 
   broker-public:
     image: eclipse-mosquitto:2.0.18
     container_name: broker-public
-    user: "0:0"
+    user: "1883:1883"
     restart: unless-stopped
     networks: [reseau-public]
     ports:
-      - "8887:8887"
+      - "8887:8887"        # seule porte ouverte vers l'extérieur
     volumes:
-      - ./broker-public/mosquitto.conf:/mosquitto/config/mosquitto.conf
-      - ./broker-public/acl:/mosquitto/config/acl
-      - ./certs:/mosquitto/certs:ro
+      - ./broker-public/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./broker-public/acl:/mosquitto/config/acl:ro
+      - ./certs/ca.crt:/mosquitto/certs/ca.crt:ro
+      - ./certs/broker-public.crt:/mosquitto/certs/broker-public.crt:ro
+      - ./certs/broker-public.key:/mosquitto/certs/broker-public.key:ro
 
   broker-prive:
     image: eclipse-mosquitto:2.0.18
     container_name: broker-prive
-    user: "0:0"
+    user: "1883:1883"
     restart: unless-stopped
-    networks: [reseau-prive]
+    networks: [reseau-prive]   # pas de ports: joignable seulement depuis reseau-prive
     volumes:
-        - ./broker-prive/mosquitto.conf:/mosquitto/config/mosquitto.conf
-        - ./broker-prive/acl:/mosquitto/config/acl
-        - ./certs:/mosquitto/certs:ro
+      - ./broker-prive/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./broker-prive/acl:/mosquitto/config/acl:ro
+      - ./certs/ca.crt:/mosquitto/certs/ca.crt:ro
+      - ./certs/broker-prive.crt:/mosquitto/certs/broker-prive.crt:ro
+      - ./certs/broker-prive.key:/mosquitto/certs/broker-prive.key:ro
 
 ###########################
 #         SENSORS         #
@@ -38,107 +43,157 @@ services:
 
   sensors-presence-1:
     build: ./sensors/presence/
-    environment: 
-      PRESENCE_ID: presence_1  
+    restart: on-failure
+    environment:
+      PRESENCE_ID: presence_1
+      BROKER_HOST: broker-public
+      BROKER_PORT: "8887"
     depends_on:
       - broker-public
     networks: [reseau-public]
     volumes:
-      - ./certs:/app/certs:ro
+      - ./certs/ca.crt:/app/certs/ca.crt:ro
+      - ./certs/presence_1.crt:/app/certs/presence_1.crt:ro
+      - ./certs/presence_1.key:/app/certs/presence_1.key:ro
 
   sensors-presence-2:
     build: ./sensors/presence/
-    environment: 
-      PRESENCE_ID: presence_2  
+    restart: on-failure
+    environment:
+      PRESENCE_ID: presence_2
+      BROKER_HOST: broker-public
+      BROKER_PORT: "8887"
     depends_on:
       - broker-public
     networks: [reseau-public]
     volumes:
-      - ./certs:/app/certs:ro
+      - ./certs/ca.crt:/app/certs/ca.crt:ro
+      - ./certs/presence_2.crt:/app/certs/presence_2.crt:ro
+      - ./certs/presence_2.key:/app/certs/presence_2.key:ro
 
   sensors-smoke:
     build: ./sensors/smoke/
-    environment: 
-      SMOKE_ID: SMOKE  
+    restart: on-failure
+    environment:
+      SMOKE_ID: SMOKE
+      BROKER_HOST: broker-prive
+      BROKER_PORT: "8887"
     depends_on:
       - broker-prive
     networks: [reseau-prive]
     volumes:
-      - ./certs:/app/certs:ro
+      - ./certs/ca.crt:/app/certs/ca.crt:ro
+      - ./certs/SMOKE.crt:/app/certs/SMOKE.crt:ro
+      - ./certs/SMOKE.key:/app/certs/SMOKE.key:ro
 
   sensors-temperature:
     build: ./sensors/weather/temperature/
-    environment: 
-      TEMPERATURE_ID: TEMPERATURE  
+    restart: on-failure
+    environment:
+      TEMPERATURE_ID: TEMPERATURE
+      BROKER_HOST: broker-public
+      BROKER_PORT: "8887"
     depends_on:
       - broker-public
     networks: [reseau-public]
     volumes:
-      - ./certs:/app/certs:ro
+      - ./certs/ca.crt:/app/certs/ca.crt:ro
+      - ./certs/TEMPERATURE.crt:/app/certs/TEMPERATURE.crt:ro
+      - ./certs/TEMPERATURE.key:/app/certs/TEMPERATURE.key:ro
 
   sensors-wind:
     build: ./sensors/weather/wind/
-    environment: 
-      WIND_ID: WIND  
+    restart: on-failure
+    environment:
+      WIND_ID: WIND
+      BROKER_HOST: broker-public
+      BROKER_PORT: "8887"
     depends_on:
       - broker-public
     networks: [reseau-public]
     volumes:
-      - ./certs:/app/certs:ro
+      - ./certs/ca.crt:/app/certs/ca.crt:ro
+      - ./certs/WIND.crt:/app/certs/WIND.crt:ro
+      - ./certs/WIND.key:/app/certs/WIND.key:ro
 
   sensors-humidity:
     build: ./sensors/weather/humidity/
-    environment: 
-      HUMIDITY_ID: HUMIDITY  
+    restart: on-failure
+    environment:
+      HUMIDITY_ID: HUMIDITY
+      BROKER_HOST: broker-public
+      BROKER_PORT: "8887"
     depends_on:
       - broker-public
     networks: [reseau-public]
     volumes:
-      - ./certs:/app/certs:ro
+      - ./certs/ca.crt:/app/certs/ca.crt:ro
+      - ./certs/HUMIDITY.crt:/app/certs/HUMIDITY.crt:ro
+      - ./certs/HUMIDITY.key:/app/certs/HUMIDITY.key:ro
 
   radar-speed:
     build: ./sensors/radars/speed/
-    environment: 
-      SPEED_ID: SPEED  
+    restart: on-failure
+    environment:
+      SPEED_ID: SPEED
+      BROKER_HOST: broker-prive
+      BROKER_PORT: "8887"
     depends_on:
       - broker-prive
     networks: [reseau-prive]
     volumes:
-      - ./certs:/app/certs:ro
+      - ./certs/ca.crt:/app/certs/ca.crt:ro
+      - ./certs/SPEED.crt:/app/certs/SPEED.crt:ro
+      - ./certs/SPEED.key:/app/certs/SPEED.key:ro
 
   radar-traffic-light:
     build: ./sensors/radars/traffic-light/
-    environment: 
-      TRAFFIC_LIGHT_ID: TRAFFIC_LIGHT  
+    restart: on-failure
+    environment:
+      TRAFFIC_LIGHT_ID: TRAFFIC_LIGHT
+      BROKER_HOST: broker-prive
+      BROKER_PORT: "8887"
     depends_on:
       - broker-prive
     networks: [reseau-prive]
     volumes:
-      - ./certs:/app/certs:ro
+      - ./certs/ca.crt:/app/certs/ca.crt:ro
+      - ./certs/TRAFFIC_LIGHT.crt:/app/certs/TRAFFIC_LIGHT.crt:ro
+      - ./certs/TRAFFIC_LIGHT.key:/app/certs/TRAFFIC_LIGHT.key:ro
 
 ###########################
-#      SENSORS INTRU      S#
+#      SENSORS INTRUS     #
 ###########################
 
   sensors-intrus-1:
     build: ./sensors/intrus/
+    restart: on-failure
     environment:
       INTRUS_ID: INTRUS_1
+      BROKER_HOST: broker-public
+      BROKER_PORT: "8887"
     depends_on:
       - broker-public
     networks: [reseau-public]
     volumes:
-      - ./certs:/app/certs:ro
+      - ./certs/ca.crt:/app/certs/ca.crt:ro
+      - ./certs/INTRUS_1.crt:/app/certs/INTRUS_1.crt:ro
+      - ./certs/INTRUS_1.key:/app/certs/INTRUS_1.key:ro
 
-  sensors-intrus_2:
+  sensors-intrus-2:
     build: ./sensors/intrus/
+    restart: on-failure
     environment:
       INTRUS_ID: INTRUS_2
+      BROKER_HOST: broker-prive      # intrus sur la zone privée
+      BROKER_PORT: "8887"
     depends_on:
-      - broker-public
-    networks: [reseau-public]
+      - broker-prive
+    networks: [reseau-prive]
     volumes:
-      - ./certs:/app/certs:ro
+      - ./certs/ca.crt:/app/certs/ca.crt:ro
+      - ./certs/INTRUS_2.crt:/app/certs/INTRUS_2.crt:ro
+      - ./certs/INTRUS_2.key:/app/certs/INTRUS_2.key:ro
 
 ###########################
 #        SUPERVISOR       #
@@ -146,9 +201,17 @@ services:
 
   supervisor:
     build: ./supervisor/
+    restart: on-failure
+    environment:
+      BROKER_PUBLIC_HOST: broker-public
+      BROKER_PRIVE_HOST: broker-prive
+      BROKER_PORT: "8887"
     depends_on:
       - broker-public
       - broker-prive
     networks: [reseau-public, reseau-prive]
     volumes:
-      - ./certs:/app/certs:ro
+      - ./inventaire.csv:/app/inventaire.csv:ro
+      - ./certs/ca.crt:/app/certs/ca.crt:ro
+      - ./certs/supervisor.crt:/app/certs/supervisor.crt:ro
+      - ./certs/supervisor.key:/app/certs/supervisor.key:ro
