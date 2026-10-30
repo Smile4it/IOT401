@@ -13,8 +13,11 @@ cert_reqs=ssl.CERT_REQUIRED)
 
 # JAMAIS ceci : chiffré mais non validé = interceptable
 #c.tls_insecure_set(True) # <-- interdit
+SENSOR_ID = os.environ["INTRUS_ID"]
+BROKER_HOST = os.environ["BROKER_HOST"]
+BROKER_PORT = int(os.environ["BROKER_PORT"])
 
-c.connect("broker-public", 8887)
+c.connect(BROKER_HOST, BROKER_PORT)
 c.loop_start()
 
 while True:

@@ -14,7 +14,7 @@ cert_reqs=ssl.CERT_REQUIRED)
 # JAMAIS ceci : chiffré mais non validé = interceptable
 #c.tls_insecure_set(True) # <-- interdit
 
-c.connect("broker-prive")
+c.connect("broker-prive",8887)
 c.loop_start()
 
 while True:
@@ -23,5 +23,5 @@ while True:
     if random.random() < 1/20:
         car=55+ random.randint(2,30)
     if car > limite:
-        c.publish(f"city/sensor/{SENSOR_ID}", "POLICE ALERTE: A CAR WAS SPEEDING AT "+str(car)+"km/h",qos=1)
+        c.publish(f"city/sensor/{SENSOR_ID}", "POLICE ALERTE: A CAR WAS SPEEDING AT "+str(car)+" km/h",qos=1)
     time.sleep(10)

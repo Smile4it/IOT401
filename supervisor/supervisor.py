@@ -39,10 +39,7 @@ def appliquer_regle(type_objet, id_objet, valeur):
         else:
             log(f"[MESURE NORMALE] {id_objet} : {valeur}")
     elif type_objet == "smoke":
-        if valeur > 0:
-            log(f"[ALERTE FUMEE] {id_objet} : détection de fumée")
-        else:
-            log(f"[MESURE NORMALE] {id_objet} : pas de fumée")
+        log(f"[ALERTE FUMEE] {id_objet} : {valeur}")
     else:                         # presence, traffic : pas de seuil, on journalise l'événement
         log(f"[EVENEMENT] {id_objet} ({type_objet}) : {valeur}")
 
@@ -55,7 +52,7 @@ def on_connect(client, zone, flags, reason_code, properties):
         client.subscribe(TOPIC)
 
 def extraire_valeur(type_objet, texte):
-    if type_objet in ("presence", "traffic"):
+    if type_objet in ("presence", "traffic","smoke"):
         return texte                              # message texte, pas de nombre
     m = re.search(r"-?\d+(?:\.\d+)?", texte)      # ignore les unités : °C, %, km/h
     return float(m.group()) if m else None

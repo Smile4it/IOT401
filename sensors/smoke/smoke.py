@@ -14,7 +14,7 @@ cert_reqs=ssl.CERT_REQUIRED)
 # JAMAIS ceci : chiffré mais non validé = interceptable
 #c.tls_insecure_set(True) # <-- interdit
 
-c.connect("broker-prive")
+c.connect("broker-prive", 8887)
 c.loop_start()
 
 while True:
