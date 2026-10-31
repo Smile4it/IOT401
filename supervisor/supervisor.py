@@ -16,6 +16,7 @@ TOPIC = "city/sensor/+"
 SEUILS = {"temperature": 30.0, "humidity": 90.0, "wind": 80.0, "speed": 50.0}
 
 
+
 def log(message):
     print(message, flush=True)
 
@@ -31,6 +32,9 @@ def charger_inventaire(chemin):
 INVENTAIRE = charger_inventaire("inventaire.csv")
 ALLOWLIST = set(INVENTAIRE)      # les identités autorisées : tout le reste est un intrus
 
+HISTORIQUE = {}
+BLACKLIST = []
+ALREADY_REPORT = set()
 
 def appliquer_regle(type_objet, id_objet, valeur):
     if type_objet in SEUILS:
@@ -62,6 +66,16 @@ def on_message(client, zone, msg):
     id_objet = msg.topic.split("/")[-1]
     texte = msg.payload.decode(errors="replace")
 
+    result=ddos(id_objet,HISTORIQUE,BLACKLIST)
+    if result == "ALREADY IN BLACKLIST":
+        if id_objet not in ALREADY_REPORT:
+            log(f"[ALERTE DEBIT] {id_objet} : ALREADY BLACKLIST")
+            ALREADY_REPORT.add(id_objet)
+        return
+    if result == "ADD TO BLACKLIST":
+       log(f"[ALERTE DEBIT] {id_objet},{result}")
+       return
+
     if id_objet not in ALLOWLIST:                 # 1. l'identité d'abord
         log(f"[ALERTE INTRUSION] objet inconnu '{id_objet}' via broker {zone} | {msg.topic} | {texte}")
         return
@@ -76,7 +90,6 @@ def on_message(client, zone, msg):
         log(f"[PAYLOAD INVALIDE] {msg.topic} : {texte!r}")
         return
     appliquer_regle(objet["type"], id_objet, valeur)
-
 
 def creer_client(zone):
     client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id=f"supervisor-{zone}")
@@ -98,6 +111,19 @@ def connecter(client, hote):
         except OSError as e:
             log(f"broker {hote} pas prêt ({e}), nouvel essai dans 3 s")
             time.sleep(3)
+
+def ddos(id_objet,HISTORIQUE,BLACKLIST):
+    now = time.time()
+    HISTORIQUE.setdefault(id_objet, [])
+    HISTORIQUE[id_objet].append(now)
+    HISTORIQUE[id_objet] = [t for t in HISTORIQUE[id_objet] if t > now - 10]
+    if id_objet in BLACKLIST:
+        return "ALREADY IN BLACKLIST"
+    if len(HISTORIQUE[id_objet]) > 5:
+        BLACKLIST.append(id_objet)
+        return "ADD TO BLACKLIST"
+    return False
+    
 
 
 log("Démarrage du superviseur...")
