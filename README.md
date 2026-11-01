@@ -45,11 +45,11 @@ docker logs -f superviseur
 
 ## Livrables
 
-- [ ] Cahier des charges (CDC)
-- [ ] Infrastructure qui tourne (docker compose)
-- [ ] Sécurité implémentée (mTLS, ACL, segmentation, détection)
-- [ ] Rapport d'audit (STRIDE, arbre d'attaque, preuves)
-- [ ] Rapport de conformité (ETSI EN 303 645, OWASP IoT Top 10, CRA, RGPD)
+- [X] Cahier des charges (CDC)
+- [X] Infrastructure qui tourne (docker compose)
+- [X] Sécurité implémentée (mTLS, ACL, segmentation, détection)
+- [X] Rapport d'audit (STRIDE, arbre d'attaque, preuves)
+- [X] Rapport de conformité (ETSI EN 303 645, OWASP IoT Top 10, CRA, RGPD)
 
 
 ## Lancer le projet
@@ -80,7 +80,7 @@ Ajouter `sudo` devant si l'utilisateur n'a pas accès à Docker.
 docker compose logs -f supervisor
 ```
 
-On y voit les connexions mTLS aux deux brokers, les mesures, les alertes de seuil (`[ALERTE SEUIL]`) et les alertes d'intrusion (`[ALERTE INTRUSION]`). `Ctrl+C` quitte l'affichage sans arrêter les conteneurs.
+On y voit les connexions mTLS aux deux brokers, les mesures, les alertes de seuil (`[ALERTE SEUIL]`), les alertes d’intrusion (`[ALERTE INTRUSION]`) et les alertes de débit (`[ALERTE DEBIT]`), déclenchées lorsqu’un objet dépasse le débit autorisé et se voit ajouté à une liste noire. `Ctrl+C` quitte l’affichage sans arrêter les conteneurs.
 
 ### 4. Arrêter
 
