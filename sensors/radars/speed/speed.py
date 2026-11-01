@@ -20,7 +20,7 @@ c.loop_start()
 while True:
     limite=55 # marge d'erreur 50 + 5 
     car = 48 + random.randint(-5,7)
-    if random.random() < 1/20:
+    if random.random() < 1/15:
         car=55+ random.randint(2,30)
     if car > limite:
         c.publish(f"city/sensor/{SENSOR_ID}", "POLICE ALERTE: A CAR WAS SPEEDING AT "+str(car)+" km/h",qos=1)

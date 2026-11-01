@@ -19,7 +19,7 @@ c.loop_start()
 
 while True:
     smoke = False
-    if random.random() < 1/50:
+    if random.random() < 1/20:
         smoke = True
         c.publish(f"city/sensor/{SENSOR_ID}","ALERTE FIREFIGHTER: SMOKE DETECTED", qos=1)
     time.sleep(10)
