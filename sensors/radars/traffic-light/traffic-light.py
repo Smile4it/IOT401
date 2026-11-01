@@ -22,6 +22,6 @@ redlight = False
 while True:
     redlight = not redlight
     if redlight:
-        if random.random() < 1/30:
+        if random.random() < 1/15:
             c.publish(f"city/sensor/{SENSOR_ID}","POLICE ALERTE: A CAR SKIPPED A RED LIGHT",qos=1)
     time.sleep(15)

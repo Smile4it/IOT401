@@ -18,7 +18,7 @@ c.connect("broker-prive",8887)
 c.loop_start()
 
 while True:
-    limite=55
+    limite=55 # marge d'erreur 50 + 5 
     car = 48 + random.randint(-5,7)
     if random.random() < 1/20:
         car=55+ random.randint(2,30)
